@@ -7,7 +7,7 @@ function gadget:GetInfo()
 		date 	= "20220310",
 		license = "Private while in testing mode",
 		layer	= 0,
-		enabled	= true,
+		enabled	= false, --true,
 	}
 end
 
