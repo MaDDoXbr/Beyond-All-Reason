@@ -136,17 +136,39 @@ local function getCurrentValue(pieceID, cmd, pieceTween)
 	local targetValue = pieceTween.targetValue --normalizeAngle(
 	local axis = pieceTween.axis
 
-	local posX, posY, posZ = spGetPieceTranslation (pieceID)
 	--Spring.Echo("piece "..pieceID.." current PosY: "..(posY or "null"))
-	local rotX, rotY, rotZ = spGetPieceRotation (pieceID)
-	if not posX or not rotX then
-		Spring.Echo("Tween Error: Piece info couldn't be determined") -- for "..unitID)
-		return
+
+	-- The code below allocates too many tables: 
+	--local posX, posY, posZ = spGetPieceTranslation (pieceID)
+	--local rotX, rotY, rotZ = spGetPieceRotation (pieceID)
+	--if not posX or not rotX then
+	--	Spring.Echo("Tween Error: Piece info couldn't be determined") -- for "..unitID)
+	--	return
+	--end
+	--local startPosDir = { ["move"] = {[x_axis] = posX, [y_axis] = posY, [z_axis] = posZ,},
+	--					  ["turn"] = { [x_axis] = rotX, [y_axis] = rotY, [z_axis] = rotZ,},
+	--}
+	--local startValue = startPosDir[cmd][axis]  --normalizeAngle(
+	local startValue = 0
+	if cmd == 'move' then 
+		local posX, posY, posZ = spGetPieceTranslation (pieceID)
+		if not posX then 
+			Spring.Echo("Tween Error: Cannot GetPieceTranslation for piece", pieceID)
+			return 
+		end
+		if axis == 'x_axis' then startValue = posX end 
+		if axis == 'y_axis' then startValue = posY end 
+		if axis == 'z_axis' then startValue = posZ end 
+	else -- 'turn'
+		local rotX, rotY, rotZ = spGetPieceRotation (pieceID)
+		if not rotX then 
+			Spring.Echo("Tween Error: Cannot GetPieceRotation for piece", pieceID)
+			return 
+		end
+		if axis == 'x_axis' then startValue = rotX end 
+		if axis == 'y_axis' then startValue = rotY end 
+		if axis == 'z_axis' then startValue = rotZ end 
 	end
-	local startPosDir = { ["move"] = {[x_axis] = posX, [y_axis] = posY, [z_axis] = posZ,},
-						  ["turn"] = { [x_axis] = rotX, [y_axis] = rotY, [z_axis] = rotZ,},
-	}
-	local startValue = startPosDir[cmd][axis]  --normalizeAngle(
 
 	--- Gotta normalize the current piece angle, since GetPieceTrans/Rot always it (else it results in not-shortest rotations)
 	local nrmTargetValue = targetValue
